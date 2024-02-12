@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', path='favicon.ico') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+    <title>Command Project</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Command number five</h1>
+        <form id="upload-form" action="/uploadfile/" method="post" enctype="multipart/form-data">
+            <label for="file-input" class="file-label">
+                <span class="highlight-text">Choose a photo</span>:
+            </label>
+            <input type="file" name="file" accept="image/*" id="file-input" class="file-input">
+            <button type="submit" class="upload-button">Upload</button>
+        </form>
+        <div id="uploaded-photo" style="display: none;">
+            <h2>Uploaded Photo</h2>
+            <img id="photo-preview" alt="Uploaded Photo" class="uploaded-image">
+            <p>Width: <span id="width"></span> pixels</p>
+            <p>Height: <span id="height"></span> pixels</p>
+        </div>
+    </div>
+
+    <!-- Добавленный JavaScript -->
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const fileInput = document.getElementById('file-input');
+            const uploadedPhotoDiv = document.getElementById('uploaded-photo');
+            const photoPreview = document.getElementById('photo-preview');
+            const widthSpan = document.getElementById('width');
+            const heightSpan = document.getElementById('height');
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            fetch('/uploadfile/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                // Отображение загруженной фотографии
+                uploadedPhotoDiv.style.display = 'block';
+                photoPreview.src = URL.createObjectURL(blob);
+
+                // Получение размеров изображения
+                const image = new Image();
+                image.src = URL.createObjectURL(blob);
+                image.onload = function() {
+                    widthSpan.textContent = this.width;
+                    heightSpan.textContent = this.height;
+                };
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
+
+
